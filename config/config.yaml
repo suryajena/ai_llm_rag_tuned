@@ -8,7 +8,7 @@ llm:
   max_tokens: 512  # Maximum tokens in LLM response
   top_p: 0.9  # Top-p sampling for LLM (0.0 to 1.0)
   azure:
-    api_key: "your_azure_api_key"  # Azure OpenAI API key
+    # api_key: "your_azure_api_key"  # Optional: Fallback if AZURE_OPENAI_API_KEY not set
     endpoint: "https://your-resource-name.openai.azure.com/"  # Azure OpenAI endpoint
     deployment: "gpt-4o"  # Azure OpenAI LLM deployment name
     api_version: "2024-02-15-preview"  # Azure OpenAI API version
@@ -17,10 +17,11 @@ llm:
     location: "us-central1"  # Vertex AI region
     endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI endpoint
     model: "gemini-pro"  # Vertex AI LLM model
+    # credentials_path: "/path/to/vertex-credentials.json"  # Optional: Fallback if GOOGLE_APPLICATION_CREDENTIALS not set
 embedding:
   provider: "azure"  # Embedding provider: "azure" or "vertex"
   azure:
-    api_key: "your_azure_api_key"  # Azure OpenAI API key
+    # api_key: "your_azure_api_key"  # Optional: Fallback if AZURE_OPENAI_API_KEY not set
     endpoint: "https://your-resource-name.openai.azure.com/"  # Azure OpenAI embedding endpoint
     deployment: "text-embedding-ada-002"  # Azure OpenAI embedding deployment name
     api_version: "2024-02-15-preview"  # Azure OpenAI API version
@@ -30,6 +31,7 @@ embedding:
     location: "us-central1"  # Vertex AI region
     endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI endpoint
     model: "textembedding-gecko"  # Vertex AI embedding model
+    # credentials_path: "/path/to/vertex-credentials.json"  # Optional: Fallback if GOOGLE_APPLICATION_CREDENTIALS not set
     dimension: 768  # Embedding dimension
   index_file_path: "output/faiss_index.bin"  # FAISS index file
   reload_index: true  # Rebuild index on startup

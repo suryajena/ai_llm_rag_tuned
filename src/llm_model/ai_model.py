@@ -4,8 +4,7 @@ from typing import Dict
 from azure.ai.inference import ChatCompletionsClient
 from azure.core.credentials import AzureKeyCredential
 from google.cloud import aiplatform
-from google.cloud.aiplatform_v1.types import content
-import os
+from src.util.helper import get_api_key
 
 logger = logging.getLogger("rag_app")
 
@@ -18,14 +17,17 @@ class AIModel:
         self.embedding_provider = config["embedding"]["provider"]
 
         if self.provider == "azure":
+            api_key = get_api_key("azure", "llm")
             self.llm_client = ChatCompletionsClient(
                 endpoint=config["llm"]["azure"]["endpoint"],
-                credential=AzureKeyCredential(config["llm"]["azure"]["api_key"])
+                credential=AzureKeyCredential(api_key)
             )
         elif self.provider == "vertex":
+            credentials_path = get_api_key("vertex", "llm")
             aiplatform.init(
                 project=config["llm"]["vertex"]["project_id"],
-                location=config["llm"]["vertex"]["location"]
+                location=config["llm"]["vertex"]["location"],
+                credentials=credentials_path
             )
             self.llm_client = aiplatform.Endpoint(
                 f"projects/{config['llm']['vertex']['project_id']}/locations/{config['llm']['vertex']['location']}/endpoints/{config['llm']['vertex']['endpoint']}"
@@ -34,14 +36,17 @@ class AIModel:
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
         if self.embedding_provider == "azure":
+            api_key = get_api_key("azure", "embedding")
             self.embedding_client = ChatCompletionsClient(
                 endpoint=config["embedding"]["azure"]["endpoint"],
-                credential=AzureKeyCredential(config["embedding"]["azure"]["api_key"])
+                credential=AzureKeyCredential(api_key)
             )
         elif self.embedding_provider == "vertex":
+            credentials_path = get_api_key("vertex", "embedding")
             aiplatform.init(
                 project=config["embedding"]["vertex"]["project_id"],
-                location=config["embedding"]["vertex"]["location"]
+                location=config["embedding"]["vertex"]["location"],
+                credentials=credentials_path
             )
             self.embedding_client = aiplatform.Endpoint(
                 f"projects/{config['embedding']['vertex']['project_id']}/locations/{config['embedding']['vertex']['location']}/endpoints/{config['embedding']['vertex']['endpoint']}"
