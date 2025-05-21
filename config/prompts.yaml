@@ -1,0 +1,54 @@
+azure:
+  query_intent_classification_prompt: |
+    Given the user query: "{user_query}", classify the intent by identifying:
+    - Relevant file types (e.g., txt, pdf, excel, sql, image)
+    - Relevant application names (e.g., project_alpha, project_beta)
+    - Relevant modules (e.g., hr_module, sales_module)
+    - Regions (e.g., nam, emea, apac, all)
+    - Statuses (e.g., active, deprecated)
+    - Analysis type (for Excel: e.g., sum, average, filter)
+    Return a JSON object with these fields: file_types, application_names, modules, regions, statuses, analysis_type.
+  excel_pandas_code_prompt: |
+    Given the Excel file with sheet "{sheet_name}" and column metadata: {column_metadata},
+    where metadata includes column names and descriptions/possible values from the catalog sheet,
+    and the user query: "{user_query}", generate Python Pandas code to compute the result.
+    Use pd.read_excel with sheet_name and load the entire sheet. Return only the Pandas code as a string.
+  excel_human_readable_prompt: |
+    Given the Pandas result: {pandas_result} and the user query: "{user_query}",
+    provide a concise, human-readable explanation of the result in natural language.
+  image_description_prompt: |
+    Given an image, describe its content in detail, focusing on visible text, objects, and context.
+    Return a concise description as a string.
+  general_rag_prompt: |
+    Using the following context: {context}
+    Answer the user query: "{user_query}" in a clear and concise manner.
+  sql_query_generation_prompt: |
+    Using the DDL context: {context}
+    Generate an SQL query for: "{user_query}". Return only the SQL query as a string.
+vertex:
+  query_intent_classification_prompt: |
+    Analyze the user query: "{user_query}". Identify:
+    - File types (txt, pdf, excel, sql, image)
+    - Application names (e.g., project_alpha, project_beta)
+    - Modules (e.g., hr_module, sales_module)
+    - Regions (nam, emea, apac, all)
+    - Statuses (active, deprecated)
+    - Excel analysis type (e.g., sum, average, filter)
+    Return a JSON object with fields: file_types, application_names, modules, regions, statuses, analysis_type.
+  excel_pandas_code_prompt: |
+    For an Excel file with sheet "{sheet_name}" and column metadata: {column_metadata},
+    where metadata includes column names and descriptions/possible values from the catalog sheet,
+    and query: "{user_query}", provide Python Pandas code to compute the result.
+    Use pd.read_excel with sheet_name and load the entire sheet. Output only the code.
+  excel_human_readable_prompt: |
+    With Pandas result: {pandas_result} for query: "{user_query}",
+    explain the result clearly and concisely in natural language.
+  image_description_prompt: |
+    Describe the content of the provided image, including any text, objects, and context.
+    Provide a brief and clear description as a string.
+  general_rag_prompt: |
+    Based on context: {context}
+    Provide a precise answer to: "{user_query}".
+  sql_query_generation_prompt: |
+    Given DDL context: {context}
+    Create an SQL query for: "{user_query}". Output only the SQL query.

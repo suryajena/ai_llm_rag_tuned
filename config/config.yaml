@@ -1,0 +1,50 @@
+data_paths:
+  input_directory: "data/"  # Directory for input files
+  output_directory: "output/"  # Directory for FAISS index and caches
+llm:
+  provider: "azure"  # LLM provider: "azure" or "vertex"
+  retrieval_k: 5  # Number of context chunks to retrieve
+  temperature: 0.7  # Sampling temperature for LLM (0.0 to 1.0)
+  max_tokens: 512  # Maximum tokens in LLM response
+  top_p: 0.9  # Top-p sampling for LLM (0.0 to 1.0)
+  azure:
+    api_key: "your_azure_api_key"  # Azure OpenAI API key
+    endpoint: "https://your-resource-name.openai.azure.com/"  # Azure OpenAI endpoint
+    deployment: "gpt-4o"  # Azure OpenAI LLM deployment name
+    api_version: "2024-02-15-preview"  # Azure OpenAI API version
+  vertex:
+    project_id: "your_project_id"  # Google Cloud project ID
+    location: "us-central1"  # Vertex AI region
+    endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI endpoint
+    model: "gemini-pro"  # Vertex AI LLM model
+embedding:
+  provider: "azure"  # Embedding provider: "azure" or "vertex"
+  azure:
+    api_key: "your_azure_api_key"  # Azure OpenAI API key
+    endpoint: "https://your-resource-name.openai.azure.com/"  # Azure OpenAI embedding endpoint
+    deployment: "text-embedding-ada-002"  # Azure OpenAI embedding deployment name
+    api_version: "2024-02-15-preview"  # Azure OpenAI API version
+    dimension: 1536  # Embedding dimension
+  vertex:
+    project_id: "your_project_id"  # Google Cloud project ID
+    location: "us-central1"  # Vertex AI region
+    endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI endpoint
+    model: "textembedding-gecko"  # Vertex AI embedding model
+    dimension: 768  # Embedding dimension
+  index_file_path: "output/faiss_index.bin"  # FAISS index file
+  reload_index: true  # Rebuild index on startup
+persistence:
+  persist_metadata: false  # Store metadata in Oracle DB
+  metadata_cache_path: "output/metadata_cache.json"  # Local metadata cache
+  faiss_id_map_path: "output/faiss_id_map_path.json"  # FAISS ID mapping
+oracle:
+  user: "your_username"  # Oracle DB username
+  password: "your_password"  # Oracle DB password
+  url: "localhost:1521/your_service"  # Oracle DB URL
+image_processing:
+  description_source: "ocr"  # Image content source: "llm", "ocr", "metadata"
+  ocr_language: "eng"  # Language for pytesseract OCR, e.g., "eng", "fra"
+prompts_path: "config/prompts.yaml"  # Path to prompts file
+chunking:
+  size: 1000  # Chunk size for text splitting
+  overlap: 200  # Chunk overlap for text splitting

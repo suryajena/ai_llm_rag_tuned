@@ -1,0 +1,47 @@
+application_name:
+  - name: project_alpha
+    files:
+      - path: "project_alpha/hr/hr_ddl.sql"
+        type: sql
+        region: nam
+        ingestion_date: 2024-01-15
+        last_updated_date: 2024-06-20
+        status: active
+        description: "HR schema DDL"
+        module: ["hr_module"]
+      - path: "project_alpha/images/logo.png"
+        type: image
+        region: nam
+        ingestion_date: 2024-01-15
+        last_updated_date: 2024-06-20
+        status: active
+        description: "Project Alpha logo"
+        module: ["core_module"]
+  - name: project_beta
+    files:
+      - path: "project_beta/notes/sales_notes.txt"
+        type: txt
+        region: emea
+        ingestion_date: 2024-03-15
+        last_updated_date: 2024-03-15
+        status: active
+        description: "Sales team notes for Q1 2024"
+        module: ["sales_module"]
+      - path: "project_beta/reports/q1_2024_sales.xlsx"
+        type: excel
+        region: emea
+        ingestion_date: 2024-04-01
+        last_updated_date: 2024-04-01
+        status: active
+        excel_config:
+          catalog_sheet_name: "Metadata"
+        description: "Q1 2024 sales data with regional metrics"
+        module: ["sales_module"]
+      - path: "project_beta/reports/balance_sheet.pdf"
+        type: pdf
+        region: apac
+        ingestion_date: 2024-03-15
+        last_updated_date: 2024-03-15
+        status: active
+        description: "Financial balance sheet for project_beta"
+        module: ["finance_module"]
