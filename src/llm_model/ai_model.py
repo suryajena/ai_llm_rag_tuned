@@ -6,11 +6,8 @@ import vertexai
 from vertexai.generative_models import GenerativeModel
 from vertexai.language_models import TextEmbeddingModel
 from src.util.helper import get_api_key
-import json
-from google.oauth2 import service_account
 
 logger = logging.getLogger("rag_app")
-
 
 class AIModel:
     def __init__(self, config: Dict):
@@ -27,16 +24,10 @@ class AIModel:
                 api_version=config["llm"]["azure"]["api_version"]
             )
         elif self.provider == "vertex":
-            token = get_api_key("vertex", "llm")
-            try:
-                # Try loading as JSON string
-                credentials_info = json.loads(token)
-                credentials = service_account.Credentials.from_service_account_info(credentials_info)
-            except json.JSONDecodeError:
-                # Assume it's a file path
-                credentials = service_account.Credentials.from_service_account_file(token)
+            credentials = get_api_key("vertex", "llm")
             vertexai.init(
                 project=config["llm"]["vertex"]["project_id"],
+                location=config["llm"]["vertex"]["location"],
                 api_transport="rest",
                 api_endpoint=config["llm"]["vertex"]["api_endpoint"],
                 credentials=credentials
@@ -53,16 +44,10 @@ class AIModel:
                 api_version=config["embedding"]["azure"]["api_version"]
             )
         elif self.embedding_provider == "vertex":
-            token = get_api_key("vertex", "embedding")
-            try:
-                # Try loading as JSON string
-                credentials_info = json.loads(token)
-                credentials = service_account.Credentials.from_service_account_info(credentials_info)
-            except json.JSONDecodeError:
-                # Assume it's a file path
-                credentials = service_account.Credentials.from_service_account_file(token)
+            credentials = get_api_key("vertex", "embedding")
             vertexai.init(
                 project=config["embedding"]["vertex"]["project_id"],
+                location=config["embedding"]["vertex"]["location"],
                 api_transport="rest",
                 api_endpoint=config["embedding"]["vertex"]["api_endpoint"],
                 credentials=credentials

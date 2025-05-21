@@ -15,8 +15,8 @@ llm:
   vertex:
     project_id: "your_project_id"  # Google Cloud project ID
     location: "us-central1"  # Vertex AI region
-    endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI endpoint
-    model: "gemini-pro"  # Vertex AI LLM model
+    api_endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI API endpoint
+    model: "gemini-1.5-pro"  # Vertex AI LLM model
     # credentials_path: "/path/to/vertex-credentials.json"  # Optional: Fallback if GOOGLE_APPLICATION_CREDENTIALS not set
 embedding:
   provider: "azure"  # Embedding provider: "azure" or "vertex"
@@ -29,8 +29,8 @@ embedding:
   vertex:
     project_id: "your_project_id"  # Google Cloud project ID
     location: "us-central1"  # Vertex AI region
-    endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI endpoint
-    model: "textembedding-gecko"  # Vertex AI embedding model
+    api_endpoint: "us-central1-aiplatform.googleapis.com"  # Vertex AI API endpoint
+    model: "text-embedding-004"  # Vertex AI embedding model
     # credentials_path: "/path/to/vertex-credentials.json"  # Optional: Fallback if GOOGLE_APPLICATION_CREDENTIALS not set
     dimension: 768  # Embedding dimension
   index_file_path: "output/faiss_index.bin"  # FAISS index file
