@@ -1,10 +1,13 @@
 import logging
 import numpy as np
 from typing import Dict
-from azure.ai.inference import ChatCompletionsClient
-from azure.core.credentials import AzureKeyCredential
-from google.cloud import aiplatform
+from openai import AzureOpenAI
+import vertexai
+from vertexai.generative_models import GenerativeModel
+from vertexai.language_models import TextEmbeddingModel
 from src.util.helper import get_api_key
+import json
+from google.oauth2 import service_account
 
 logger = logging.getLogger("rag_app")
 
@@ -18,39 +21,53 @@ class AIModel:
 
         if self.provider == "azure":
             api_key = get_api_key("azure", "llm")
-            self.llm_client = ChatCompletionsClient(
-                endpoint=config["llm"]["azure"]["endpoint"],
-                credential=AzureKeyCredential(api_key)
+            self.llm_client = AzureOpenAI(
+                api_key=api_key,
+                azure_endpoint=config["llm"]["azure"]["endpoint"],
+                api_version=config["llm"]["azure"]["api_version"]
             )
         elif self.provider == "vertex":
-            credentials_path = get_api_key("vertex", "llm")
-            aiplatform.init(
+            token = get_api_key("vertex", "llm")
+            try:
+                # Try loading as JSON string
+                credentials_info = json.loads(token)
+                credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            except json.JSONDecodeError:
+                # Assume it's a file path
+                credentials = service_account.Credentials.from_service_account_file(token)
+            vertexai.init(
                 project=config["llm"]["vertex"]["project_id"],
-                location=config["llm"]["vertex"]["location"],
-                credentials=credentials_path
+                api_transport="rest",
+                api_endpoint=config["llm"]["vertex"]["api_endpoint"],
+                credentials=credentials
             )
-            self.llm_client = aiplatform.Endpoint(
-                f"projects/{config['llm']['vertex']['project_id']}/locations/{config['llm']['vertex']['location']}/endpoints/{config['llm']['vertex']['endpoint']}"
-            )
+            self.llm_client = GenerativeModel(config["llm"]["vertex"]["model"])
         else:
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
         if self.embedding_provider == "azure":
             api_key = get_api_key("azure", "embedding")
-            self.embedding_client = ChatCompletionsClient(
-                endpoint=config["embedding"]["azure"]["endpoint"],
-                credential=AzureKeyCredential(api_key)
+            self.embedding_client = AzureOpenAI(
+                api_key=api_key,
+                azure_endpoint=config["embedding"]["azure"]["endpoint"],
+                api_version=config["embedding"]["azure"]["api_version"]
             )
         elif self.embedding_provider == "vertex":
-            credentials_path = get_api_key("vertex", "embedding")
-            aiplatform.init(
+            token = get_api_key("vertex", "embedding")
+            try:
+                # Try loading as JSON string
+                credentials_info = json.loads(token)
+                credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            except json.JSONDecodeError:
+                # Assume it's a file path
+                credentials = service_account.Credentials.from_service_account_file(token)
+            vertexai.init(
                 project=config["embedding"]["vertex"]["project_id"],
-                location=config["embedding"]["vertex"]["location"],
-                credentials=credentials_path
+                api_transport="rest",
+                api_endpoint=config["embedding"]["vertex"]["api_endpoint"],
+                credentials=credentials
             )
-            self.embedding_client = aiplatform.Endpoint(
-                f"projects/{config['embedding']['vertex']['project_id']}/locations/{config['embedding']['vertex']['location']}/endpoints/{config['embedding']['vertex']['endpoint']}"
-            )
+            self.embedding_client = TextEmbeddingModel.from_pretrained(config["embedding"]["vertex"]["model"])
         else:
             raise ValueError(f"Unsupported embedding provider: {self.embedding_provider}")
 
@@ -58,27 +75,24 @@ class AIModel:
         """Generate text using the configured LLM."""
         try:
             if self.provider == "azure":
-                response = self.llm_client.complete(
-                    messages=[{"role": "user", "content": prompt}],
+                response = self.llm_client.chat.completions.create(
                     model=self.config["llm"]["azure"]["deployment"],
+                    messages=[{"role": "user", "content": prompt}],
                     temperature=temperature,
                     max_tokens=max_tokens,
-                    top_p=top_p,
-                    extra_query_params={"api-version": self.config["llm"]["azure"]["api_version"]}
+                    top_p=top_p
                 )
                 return response.choices[0].message.content
             elif self.provider == "vertex":
-                response = self.llm_client.predict(
-                    instances=[{
-                        "content": prompt,
-                        "parameters": {
-                            "temperature": temperature,
-                            "maxOutputTokens": max_tokens,
-                            "topP": top_p
-                        }
-                    }]
+                response = self.llm_client.generate_content(
+                    contents=prompt,
+                    generation_config={
+                        "temperature": temperature,
+                        "max_output_tokens": max_tokens,
+                        "top_p": top_p
+                    }
                 )
-                return response.predictions[0]["content"]
+                return response.text
         except Exception as e:
             logger.error(f"Failed to generate text with {self.provider}", exc_info=True)
             raise
@@ -88,16 +102,13 @@ class AIModel:
         try:
             if self.embedding_provider == "azure":
                 response = self.embedding_client.embeddings.create(
-                    input=[text],
-                    model=self.config["embedding"]["azure"]["deployment"],
-                    extra_query_params={"api-version": self.config["embedding"]["azure"]["api_version"]}
+                    input=text,
+                    model=self.config["embedding"]["azure"]["deployment"]
                 )
                 return np.array(response.data[0].embedding, dtype=np.float32)
             elif self.embedding_provider == "vertex":
-                response = self.embedding_client.predict(
-                    instances=[{"content": text}]
-                )
-                return np.array(response.predictions[0]["embeddings"]["values"], dtype=np.float32)
+                response = self.embedding_client.get_embeddings([text])
+                return np.array(response[0].values, dtype=np.float32)
         except Exception as e:
             logger.error(f"Failed to generate embedding with {self.embedding_provider}", exc_info=True)
             raise
